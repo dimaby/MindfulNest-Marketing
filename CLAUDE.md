@@ -19,10 +19,15 @@ It is meant to be published on **GitHub Pages** (static hosting, no backend).
 - Screenshots of the mobile app live in `scr/` as PNGs. Filenames contain spaces, so links in HTML must URL-encode them (`scr/2%20MindfulNest%20-%20Dashboard.png`).
 - All user-facing copy is **in Russian**. Keep it that way unless the user switches language.
 - Visual style is inspired by the reference report at `https://kishkisalexandra.github.io/ArchiveCSP/`: very dark navy background, violet (`#7C5CFF`) + teal (`#4DD0C1`) accents, `Space Grotesk` for headings, `Inter` for body, rounded cards with subtle gradients and glow effects.
-- Survey submission has **no backend**. On submit the form:
-  1. stores the response in `localStorage` under key `mindfulnest_responses`, and
-  2. opens a `mailto:voytik_db@powerp.ai` prefilled with the JSON answers.
-  There is also a "Download as JSON" button. If a real backend/Formspree/Google-Form is wired up later, replace the submit handler at the bottom of `index.html`.
+- Survey submission uses **Formspree** (endpoint `https://formspree.io/f/mvzdwjpn`, constant `FORMSPREE_ENDPOINT` in JS). The endpoint ID is public by design — Formspree throttles and captchas on the server side, no secret needed in the browser. On submit:
+  1. Saves a safety copy to `localStorage` under key `mindfulnest_responses`.
+  2. Builds a human-readable payload via `buildFormspreePayload()`: maps raw form slugs (`"yes-constant"` etc.) to full Russian sentences via the `MAP` object, and uses full question text as keys (so the Formspree dashboard and email are readable: `"01. Узнаёте ли Вы проблему..."`).
+  3. POSTs JSON with `Content-Type: application/json` and `Accept: application/json` so Formspree replies with JSON instead of redirecting.
+  4. Special Formspree fields: `_subject` (email subject), `_replyto` (respondent's email).
+  5. On success → hides the form, shows `#thanks`. On failure → re-enables the button and shows `.submit-error` with fallback mailto to `me@dimaby.com`.
+- **Previous Airtable backend** (table `Responses` in base `appTWpWhBl6vFYBD0`) still exists but is no longer written to. The token that was in client code should be rotated — it was committed briefly. Nothing in `index.html` references it anymore.
+- If you need to rename a form field, update **both** the option's `value` attribute in HTML and the corresponding key in the `MAP` object.
+- Formspree free tier is 50 submissions/month. At that cap, move to Formspree paid, Cloudflare Worker + direct-to-Airtable, or Google Apps Script.
 
 ## How to run / preview
 
