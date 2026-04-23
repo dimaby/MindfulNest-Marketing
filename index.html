@@ -1679,7 +1679,8 @@
       'Имя и агентство':   v(name),
       'Контакт':           v(contact),
       'User Agent':        (navigator.userAgent || '').slice(0, 250),
-      '_subject':          'MindfulNest — ответ от ' + (name || 'Аноним')
+      'Language':          'EN',
+      '_subject':          'MindfulNest [EN] — response from ' + (name || 'Anonymous')
     };
     // Reply-to only if the contact is a valid email (otherwise Formspree 422s)
     if (looksLikeEmail) payload['_replyto'] = contact;
